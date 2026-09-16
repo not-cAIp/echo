@@ -85,13 +85,39 @@
   .credits-card{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0;font-size:12.5px;line-height:1.9;}
   .credits-card .ctitle{font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ink);}
 
-  .return-panel{
-    margin-top:24px; padding:16px; background:var(--surface); border:1px solid var(--line);
-    border-radius:10px; text-align:center;
+  .photo-frame{
+    display:block; width:170px; max-width:100%; margin:8px 0 4px; border:1px solid var(--line);
+    border-radius:8px; overflow:hidden; cursor:zoom-in; background:#0a0f10;
   }
-  .return-panel a{color:var(--accent);font-size:13px;text-decoration:none;font-weight:700;}
-  .return-panel a:hover{text-decoration:underline;}
-  .return-panel p{font-size:11.5px;color:var(--ink-faint);margin:0 0 10px;line-height:1.7;}
+  .photo-frame.zoomed{width:320px; cursor:zoom-out;}
+  .photo-frame svg{display:block;width:100%;height:auto;}
+  .photo-cap{font-size:11px;color:var(--ink-faint);margin:0 0 4px;}
+
+  .app-tabs{display:flex;gap:6px;margin-bottom:14px;}
+  .app-tabs button{
+    flex:1;background:var(--surface);border:1px solid var(--line);color:var(--ink-soft);
+    border-radius:8px;padding:9px;font-size:12.5px;font-weight:500;cursor:pointer;
+    font-family:inherit;
+  }
+  .app-tabs button.active{background:var(--accent);color:#0d1414;border-color:var(--accent);font-weight:700;}
+
+  .memo-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;}
+  .memo-card .mtitle{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--ink);}
+  .memo-thread{display:flex;flex-direction:column;gap:10px;}
+
+  .gate-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 16px;}
+  .gate-card p.hint{font-size:11.5px;color:var(--ink-faint);line-height:1.7;margin:0 0 14px;}
+  .gate-card input{
+    width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+    font-size:13px;color:var(--ink);margin-bottom:10px;background:var(--surface-2);
+    font-family:"JetBrains Mono",monospace;box-sizing:border-box;
+  }
+  .gate-card input:focus{outline:none;border-color:var(--accent);}
+  .gate-card button{
+    width:100%;background:var(--accent);color:#0d1414;border:none;border-radius:8px;
+    padding:11px;font-size:13px;font-weight:700;cursor:pointer;
+  }
+  .gate-err{font-size:11.5px;color:var(--warn);margin-top:8px;}
 </style>
 </head>
 <body>
@@ -118,6 +144,7 @@
     <p class="hint">这个账号很久没有在新设备上登录过了。为了确认是本人操作，请回答账号绑定时设置的安全问题。</p>
     <label>最初的群聊有几个人？</label>
     <input id="ve-input" type="text" placeholder="……" autocomplete="off" />
+    <div class="login-note" style="margin:0 0 12px;text-align:left;">试试接近的数字。</div>
     <button id="ve-btn">验证并进入</button>
     <div id="ve-msg"></div>
   </div>
@@ -133,10 +160,13 @@
 </div>
 
 <script>
-  const RETURN_BASE = "https://saraliuxt-coder.github.io/idol-fall/";
   const USERNAME = "quietanson_716";
   const PASSWORD = "anzai0719";
   const RECOVERY_ANSWERS = ["5", "五", "five", "5个", "五个", "5人", "五人"];
+  // 员工群单独一道密码——线索只在陈屿的旧动态里给了"原名_生日"这个
+  // 格式提示（还有 manibeeo 的吐槽），原名和生日要靠别处的线索自己拼：
+  // 姓名在 HX_404 资料卡里写着"贺寻"，生日也在同一张卡片上。
+  const STAFF_GROUP_PASSWORD = ["hexun0611", "贺寻0611"];
 
   // 有些输入法手动打字时会把字母数字打成全角，肉眼几乎看不出来，但和
   // 半角字符串直接比较会判定不相等——粘贴进来的内容不受输入法影响所以
@@ -179,32 +209,57 @@
 
   const GROUP_NAMES = [
     { name: "出道预备A组（5）", note: "最早建群时的名字。" },
-    { name: "NOVA5（5）", note: "确定组合方向后改的。" },
+    { name: "NOV5（5）", note: "确定组合方向后改的。" },
     { name: "项目确认群（5）", note: "公司正式确认项目后又改了一次。" },
-    { name: "NOVA7成员群（4）", note: "最后一次改名，成员数从 5 变成了 4。第五个人的账号从这之后就一直显示『已注销』。" },
+    { name: "F4ever成员群（4）", note: "最后一次改名，成员数从 5 变成了 4。第五个人的账号从这之后就一直显示『已注销』。" },
   ];
+
+  let activeAppTab = "f4ever";
 
   function renderApp() {
     const app = document.getElementById("app");
     app.innerHTML = `
-      <div class="group-head">
-        <div class="gname">NOVA7成员群（4）</div>
-        <div class="gmeta">群成员：4 · 另有 1 个账号状态异常</div>
-        <div class="gtoggle" id="gname-toggle">‹ 查看群名变更记录</div>
-        <div id="gname-history" hidden></div>
+      <div class="app-tabs">
+        <button data-tab="f4ever">F4ever成员群</button>
+        <button data-tab="chenyu">陈屿的旧动态</button>
+        <button data-tab="staff">员工群</button>
       </div>
-      <div class="chat-log" id="chat-log"></div>
-      <div id="return-slot"></div>
+      <div id="tab-pane"></div>
     `;
-
-    document.getElementById("gname-toggle").addEventListener("click", () => {
-      const el = document.getElementById("gname-history");
-      el.hidden = !el.hidden;
-      el.innerHTML = `<div class="gname-history">${GROUP_NAMES.map((g) => `<div><b>${g.name}</b> — ${g.note}</div>`).join("")}</div>`;
+    app.querySelectorAll(".app-tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeAppTab = btn.dataset.tab;
+        renderTabPane();
+      });
     });
+    renderTabPane();
+  }
 
-    renderChatLog(document.getElementById("chat-log"));
-    renderReturnSlot(document.getElementById("return-slot"));
+  function renderTabPane() {
+    const app = document.getElementById("app");
+    app.querySelectorAll(".app-tabs button").forEach((b) => b.classList.toggle("active", b.dataset.tab === activeAppTab));
+    const pane = document.getElementById("tab-pane");
+    if (activeAppTab === "f4ever") {
+      pane.innerHTML = `
+        <div class="group-head">
+          <div class="gname">F4ever成员群（4）</div>
+          <div class="gmeta">群成员：4 · 另有 1 个账号状态异常</div>
+          <div class="gtoggle" id="gname-toggle">‹ 查看群名变更记录</div>
+          <div id="gname-history" hidden></div>
+        </div>
+        <div class="chat-log" id="chat-log"></div>
+      `;
+      document.getElementById("gname-toggle").addEventListener("click", () => {
+        const el = document.getElementById("gname-history");
+        el.hidden = !el.hidden;
+        el.innerHTML = `<div class="gname-history">${GROUP_NAMES.map((g) => `<div><b>${g.name}</b> — ${g.note}</div>`).join("")}</div>`;
+      });
+      renderChatLog(document.getElementById("chat-log"));
+    } else if (activeAppTab === "chenyu") {
+      renderChenyuMemo(pane);
+    } else if (activeAppTab === "staff") {
+      renderStaffTab(pane);
+    }
   }
 
   function sys(text, warn) {
@@ -226,18 +281,18 @@
   function renderChatLog(el) {
     let html = "";
 
-    html += sys("群名由「出道预备A组（5）」改为「NOVA5（5）」");
+    html += sys("群名由「出道预备A组（5）」改为「NOV5（5）」");
 
     html += msg("HX_404", "谁拿了我牛奶？");
     html += msg("林安", "晏星。");
     html += msg("周晏星", "林安你是不是想死。");
     html += msg("江彻", "明早六点集合，你们三个还不睡？");
     html += msg("HX_404", "等出道以后我要把这段截图发出去。", "hx");
-    html += msg("江彻", "对了，练习室门禁密码统一了，就是nova5，别忘了。");
+    html += msg("江彻", "对了，练习室门禁密码统一了，就是nov5，别忘了。");
     html += msg("林安", "这也太好记了吧。");
     html += msg("HX_404", "公司什么都图省事，以后估计到哪都是这个。", "hx");
 
-    html += sys("群名由「NOVA5（5）」改为「项目确认群（5）」");
+    html += sys("群名由「NOV5（5）」改为「项目确认群（5）」");
 
     html += msg("HX_404", "为什么我明天的声乐课被取消了？", "hx");
     html += msg("林安", "我去问老师。");
@@ -254,7 +309,7 @@
     html += msg("林安", "不是这样的。");
     html += sys("系统：HX_404 已被管理员周晏星移出群聊", true);
 
-    html += sys("群名由「项目确认群（5）」改为「NOVA7成员群（4）」", true);
+    html += sys("群名由「项目确认群（5）」改为「F4ever成员群（4）」", true);
 
     html += msg("林安", "我可以不签。");
     html += msg("林安", "只要你说不想走，我就不签。");
@@ -269,35 +324,99 @@
     html += `
       <div class="profile-card">
         <div class="ptitle">HX_404 的资料（已注销）</div>
-        <div class="ptag">项目编号 H-X-04 ｜ 姓名：贺寻</div>
-        置顶相册里有一张没删掉的照片：一根麦克风线，接口处缠了一圈银色交叉胶带，配文是『自己做的记号，不然天天跟别人拿混』。
+        <div class="ptag">项目编号 H-X-04 ｜ 姓名：贺寻 ｜ 生日：06-11</div>
+        置顶相册里有一张没删掉的照片，配文是『自己做的记号，不然天天跟别人拿混』：
+        ${tapeCableSvg("hx404-photo")}
       </div>
     `;
 
     html += `
       <div class="credits-card">
         <div class="ctitle">最近一次刷到的周年物料署名</div>
-        『晏星的七年留言』周年企划 · 素材执行：<b>HX_PROD</b><br/>
-        物料花絮里能看到工作人员的麦克风线——接口处也缠着一圈银色交叉胶带，和上面那张旧照片里的记号是同一种打法。
+        『晏星的七年留言』周年企划 · 素材执行：<b>新_PROD</b><br/>
+        物料花絮截图，能看到工作人员的麦克风线：
+        ${tapeCableSvg("newprod-photo")}
       </div>
     `;
 
     el.innerHTML = html;
 
-    // 翻到这两张照片放在一起，同一种胶带记号已经摆在眼前——不用再点一个
-    // "确认"按钮把结论替玩家说出来，看完这页本身就算拿到这条线索了。
-    sessionStorage.setItem("echo-identity-confirmed", "1");
-    renderReturnSlot(document.getElementById("return-slot"));
+    el.querySelectorAll(".photo-frame").forEach((f) => {
+      f.addEventListener("click", () => f.classList.toggle("zoomed"));
+    });
   }
 
-  function renderReturnSlot(el) {
-    if (sessionStorage.getItem("echo-identity-confirmed") !== "1") { el.innerHTML = ""; return; }
-    el.innerHTML = `
-      <div class="return-panel">
-        <p>你确认了一个被删除账号的真实身份。</p>
-        <a href="${RETURN_BASE}?clue=c36">‹ 返回超话继续调查</a>
+  // 同一种"接口处缠银色交叉胶带"的记号，用同一段 SVG 画两次——玩家自己
+  // 把两张图摆在一起比对，不需要再有一个"确认这是同一个人"的按钮替
+  // 玩家下结论。点一下图可以放大看细节，跟真实图片浏览的交互一致。
+  function tapeCableSvg(id) {
+    return `
+      <div class="photo-frame" id="${id}">
+        <svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+          <rect width="240" height="140" fill="#0d1414"/>
+          <path d="M18 104 C 58 40, 100 132, 140 68 S 198 26, 222 58" stroke="#2a3538" stroke-width="11" fill="none" stroke-linecap="round"/>
+          <path d="M18 104 C 58 40, 100 132, 140 68 S 198 26, 222 58" stroke="#3a4a4d" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <rect x="204" y="46" width="28" height="22" rx="3" fill="#161d1f" stroke="#4a5a5d" stroke-width="1.5"/>
+          <g stroke="#cfd4d1" stroke-width="4.5" stroke-linecap="round">
+            <line x1="193" y1="48" x2="211" y2="66"/>
+            <line x1="193" y1="66" x2="211" y2="48"/>
+          </g>
+          <text x="10" y="18" font-family="monospace" font-size="9" fill="#5e7270">IMG_0392.jpg</text>
+        </svg>
+      </div>
+      <div class="photo-cap">点击查看大图</div>
+    `;
+  }
+
+  function renderChenyuMemo(pane) {
+    pane.innerHTML = `
+      <div class="memo-card">
+        <div class="mtitle">陈屿的旧动态</div>
+        <div class="memo-thread">
+          ${msg("陈屿", "怎么都是原名_生日")}
+          ${msg("manibeeo", "你带的都这么糊，谁没事去黑账号")}
+        </div>
       </div>
     `;
+  }
+
+  function renderStaffTab(pane) {
+    if (sessionStorage.getItem("echo-staff-unlocked") === "1") {
+      renderStaffChat(pane);
+      return;
+    }
+    pane.innerHTML = `
+      <div class="gate-card">
+        <p class="hint">员工群 · 需要单独的访问口令才能查看。</p>
+        <input id="staff-pass-input" type="text" placeholder="输入口令" autocomplete="off" />
+        <button id="staff-pass-btn">进入</button>
+        <div id="staff-pass-err"></div>
+      </div>
+    `;
+    function submit() {
+      const val = norm(document.getElementById("staff-pass-input").value);
+      if (STAFF_GROUP_PASSWORD.map(norm).includes(val)) {
+        sessionStorage.setItem("echo-staff-unlocked", "1");
+        renderStaffChat(pane);
+        return;
+      }
+      document.getElementById("staff-pass-err").innerHTML = `<div class="gate-err">口令不正确。</div>`;
+    }
+    document.getElementById("staff-pass-btn").addEventListener("click", submit);
+    document.getElementById("staff-pass-input").addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+  }
+
+  function renderStaffChat(pane) {
+    let html = "";
+    html += sys("员工群（3）");
+    html += msg("陈屿", "周年物料这周必须出，人手不够。");
+    html += msg("新_PROD", "花絮部分我来补，麦克风那条线借我一下就行。");
+    html += msg("陈屿", "行，东西用完记得放回道具间。");
+    html += msg("经纪人小唐", "花絮里工作人员的脸尽量别拍全，走个背影或者侧脸。");
+    html += msg("新_PROD", "知道，一直都是这么处理的。");
+    html += msg("陈屿", "周年这条弄完了就先休息，别老熬夜剪片子。");
+    html += msg("新_PROD", "习惯了。");
+    pane.innerHTML = `<div class="group-head"><div class="gname">员工群（3）</div></div><div class="chat-log">${html}</div>`;
   }
 
   if (sessionStorage.getItem("echo-logged-in") === "1") {

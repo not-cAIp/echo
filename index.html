@@ -92,7 +92,9 @@
     border-radius:8px; overflow:hidden; cursor:zoom-in; background:#0a0f10;
   }
   .photo-frame.zoomed{width:320px; cursor:zoom-out;}
-  .photo-frame svg{display:block;width:100%;height:auto;}
+  .photo-frame svg, .photo-frame img{display:block;width:100%;height:auto;}
+  .photo-frame.large{width:280px;}
+  .photo-frame.large.zoomed{width:100%;}
   .photo-cap{font-size:11px;color:var(--ink-faint);margin:0 0 4px;}
 
   .app-tabs{display:flex;gap:6px;margin-bottom:14px;}
@@ -255,11 +257,15 @@
       name: "HX_404",
       tag: "项目编号 H-X-04 ｜ 姓名：贺寻 ｜ 生日：06-11 ｜ 已注销",
       bio: "梦想是出道",
+      pinnedImage: "images/mic-hx404.png",
+      pinnedCaption: "自己做的记号，不然天天跟别人拿混",
     },
     newprod: {
       name: "新_PROD",
       tag: "巡演制作协调",
       bio: "",
+      pinnedImage: "images/mic-newprod.png",
+      pinnedCaption: "工作人员用麦克风，别乱拿",
     },
   };
 
@@ -284,7 +290,10 @@
         </div>
         ${data.bio ? `<div class="account-bio">${data.bio}</div>` : ""}
         <div class="account-pinned-label">置顶</div>
-        ${tapeCableSvg(id + "-pinned")}
+        <div class="photo-frame large" id="${id}-pinned">
+          <img src="${data.pinnedImage}" alt="${data.pinnedCaption}" />
+        </div>
+        <div class="photo-cap">${data.pinnedCaption}</div>
       </div>
     `;
     document.getElementById("account-back").addEventListener("click", () => {
@@ -421,28 +430,6 @@
     bindAccountLinks(el);
     document.getElementById("hx404-link").addEventListener("click", () => openAccountPage("hx404"));
     document.getElementById("newprod-credit-link").addEventListener("click", () => openAccountPage("newprod"));
-  }
-
-  // 同一种"接口处缠银色交叉胶带"的记号，用同一段 SVG 画两次——玩家自己
-  // 把两张图摆在一起比对，不需要再有一个"确认这是同一个人"的按钮替
-  // 玩家下结论。点一下图可以放大看细节，跟真实图片浏览的交互一致。
-  function tapeCableSvg(id) {
-    return `
-      <div class="photo-frame" id="${id}">
-        <svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
-          <rect width="240" height="140" fill="#0d1414"/>
-          <path d="M18 104 C 58 40, 100 132, 140 68 S 198 26, 222 58" stroke="#2a3538" stroke-width="11" fill="none" stroke-linecap="round"/>
-          <path d="M18 104 C 58 40, 100 132, 140 68 S 198 26, 222 58" stroke="#3a4a4d" stroke-width="6" fill="none" stroke-linecap="round"/>
-          <rect x="204" y="46" width="28" height="22" rx="3" fill="#161d1f" stroke="#4a5a5d" stroke-width="1.5"/>
-          <g stroke="#cfd4d1" stroke-width="4.5" stroke-linecap="round">
-            <line x1="193" y1="48" x2="211" y2="66"/>
-            <line x1="193" y1="66" x2="211" y2="48"/>
-          </g>
-          <text x="10" y="18" font-family="monospace" font-size="9" fill="#5e7270">IMG_0392.jpg</text>
-        </svg>
-      </div>
-      <div class="photo-cap">点击查看大图</div>
-    `;
   }
 
   function renderStaffTab(pane) {

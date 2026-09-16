@@ -101,10 +101,6 @@
   }
   .app-tabs button.active{background:var(--accent);color:#0d1414;border-color:var(--accent);font-weight:700;}
 
-  .memo-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;}
-  .memo-card .mtitle{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--ink);}
-  .memo-thread{display:flex;flex-direction:column;gap:10px;}
-
   .gate-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 16px;}
   .gate-card p.hint{font-size:11.5px;color:var(--ink-faint);line-height:1.7;margin:0 0 14px;}
   .gate-card input{
@@ -163,9 +159,10 @@
   const USERNAME = "quietanson_716";
   const PASSWORD = "anzai0719";
   const RECOVERY_ANSWERS = ["5", "五", "five", "5个", "五个", "5人", "五人"];
-  // 员工群单独一道密码——线索只在陈屿的旧动态里给了"原名_生日"这个
-  // 格式提示（还有 manibeeo 的吐槽），原名和生日要靠别处的线索自己拼：
-  // 姓名在 HX_404 资料卡里写着"贺寻"，生日也在同一张卡片上。
+  // 员工群单独一道密码——密码格式提示"原名_生日"这一版挪到了主站
+  // 陈屿的备忘录（cy_notes）里，ECHO 这边不再重复放。原名和生日要靠
+  // 别处的线索自己拼：姓名在 HX_404 资料卡里写着"贺寻"，生日也在
+  // 同一张卡片上。
   const STAFF_GROUP_PASSWORD = ["hexun0611", "贺寻0611"];
 
   // 有些输入法手动打字时会把字母数字打成全角，肉眼几乎看不出来，但和
@@ -221,7 +218,6 @@
     app.innerHTML = `
       <div class="app-tabs">
         <button data-tab="f4ever">F4ever成员群</button>
-        <button data-tab="chenyu">陈屿的旧动态</button>
         <button data-tab="staff">员工群</button>
       </div>
       <div id="tab-pane"></div>
@@ -255,8 +251,6 @@
         el.innerHTML = `<div class="gname-history">${GROUP_NAMES.map((g) => `<div><b>${g.name}</b> — ${g.note}</div>`).join("")}</div>`;
       });
       renderChatLog(document.getElementById("chat-log"));
-    } else if (activeAppTab === "chenyu") {
-      renderChenyuMemo(pane);
     } else if (activeAppTab === "staff") {
       renderStaffTab(pane);
     }
@@ -365,18 +359,6 @@
         </svg>
       </div>
       <div class="photo-cap">点击查看大图</div>
-    `;
-  }
-
-  function renderChenyuMemo(pane) {
-    pane.innerHTML = `
-      <div class="memo-card">
-        <div class="mtitle">陈屿的旧动态</div>
-        <div class="memo-thread">
-          ${msg("陈屿", "怎么都是原名_生日")}
-          ${msg("manibeeo", "你带的都这么糊，谁没事去黑账号")}
-        </div>
-      </div>
     `;
   }
 

@@ -78,14 +78,6 @@
   .msg.deactivated .who{color:var(--ink-faint);}
   .msg.failed .bubble{border-style:dashed;color:var(--ink-faint);}
 
-  .profile-link{color:var(--accent);cursor:pointer;text-decoration:underline dotted;}
-  .profile-card{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:14px 16px;margin:6px 0 14px;font-size:12.5px;line-height:1.8;}
-  .profile-card .ptitle{font-weight:700;font-size:13.5px;margin-bottom:4px;}
-  .profile-card .ptag{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);margin-bottom:8px;}
-  .profile-card img.tape-note{display:block;background:var(--surface-2);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;color:var(--ink-faint);font-size:11.5px;margin-top:6px;}
-
-  .credits-card{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0;font-size:12.5px;line-height:1.9;}
-  .credits-card .ctitle{font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ink);}
 
   .photo-frame{
     display:block; width:170px; max-width:100%; margin:8px 0 4px; border:1px solid var(--line);
@@ -114,10 +106,6 @@
   .account-tag{font-size:11px;color:var(--ink-faint);margin-top:2px;}
   .account-bio{font-size:13px;color:var(--ink-soft);margin:10px 0 14px;padding:10px 12px;background:var(--surface-2);border-radius:8px;}
   .account-pinned-label{font-size:11px;color:var(--ink-faint);font-weight:600;letter-spacing:.03em;margin-bottom:6px;}
-  .profile-link-card{cursor:pointer;}
-  .profile-link-card:hover{border-color:var(--accent);}
-  .staff-more-link{color:var(--accent);font-size:12.5px;cursor:pointer;margin-top:10px;display:inline-block;}
-  .staff-more-link:hover{text-decoration:underline;}
 
   .gate-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 16px;}
   .gate-card p.hint{font-size:11.5px;color:var(--ink-faint);line-height:1.7;margin:0 0 14px;}
@@ -408,28 +396,9 @@
     html += msg("林安", "看见那件黑外套没有？里面不是他。");
     html += msg("HX_404", "拜托别拆穿，我十分钟就回来。", "hx");
 
-    html += `
-      <div class="profile-card profile-link-card" id="hx404-link">
-        <div class="ptitle">HX_404 的资料（已注销）</div>
-        <div class="ptag">项目编号 H-X-04 ｜ 姓名：贺寻 ｜ 生日：06-11</div>
-        置顶相册里有一张没删掉的照片，配文是『自己做的记号，不然天天跟别人拿混』——点头像或用户名进主页看。
-        <div class="staff-more-link">查看 HX_404 主页 ›</div>
-      </div>
-    `;
-
-    html += `
-      <div class="credits-card">
-        <div class="ctitle">最近一次刷到的周年物料署名</div>
-        『晏星的七年留言』周年企划 · 素材执行：<b class="profile-link-card" id="newprod-credit-link" style="cursor:pointer;">新_PROD</b><br/>
-        物料花絮截图里能看到工作人员的麦克风线，点上面的账号名去主页看。
-      </div>
-    `;
-
     el.innerHTML = html;
 
     bindAccountLinks(el);
-    document.getElementById("hx404-link").addEventListener("click", () => openAccountPage("hx404"));
-    document.getElementById("newprod-credit-link").addEventListener("click", () => openAccountPage("newprod"));
   }
 
   function renderStaffTab(pane) {
@@ -464,17 +433,15 @@
     html += msg("陈屿", "周年物料这周必须出，人手不够。");
     html += msg("新_PROD", "花絮部分我来补，麦克风那条线借我一下就行。");
     html += msg("不重要的经纪人", "行，东西用完记得放回道具间。");
-    html += msg("麦头哥", "道具间的锁又坏了，我去找物业。");
+    html += msg("不重要的麦头哥", "道具间的锁又坏了，我去找物业。");
     html += msg("新_PROD", "知道，一直都是这么处理的。");
     html += msg("不重要的工作人员", "今天盒饭是谁订的，土豆丝有点咸。");
-    html += msg("免费实习生", "不是我订的，我还没转正");
+    html += msg("不重要的免费实习生", "不是我订的，我还没转正");
     html += msg("陈屿", "周年这条弄完了就先休息，别老熬夜剪片子。");
     html += msg("新_PROD", "习惯了。");
-    html += msg("麦头哥", "咸不咸的，明天照常八点集合。");
-    html += `<div class="staff-more-link" id="newprod-link">查看新_PROD主页 ›</div>`;
+    html += msg("不重要的麦头哥", "咸不咸的，明天照常八点集合。");
     pane.innerHTML = `<div class="group-head"><div class="gname">员工群（6）</div></div><div class="chat-log">${html}</div>`;
     bindAccountLinks(pane);
-    document.getElementById("newprod-link").addEventListener("click", () => openAccountPage("newprod"));
   }
 
   if (sessionStorage.getItem("echo-logged-in") === "1") {

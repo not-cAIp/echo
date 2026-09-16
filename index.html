@@ -279,23 +279,15 @@
         <div class="ctitle">最近一次刷到的周年物料署名</div>
         『晏星的七年留言』周年企划 · 素材执行：<b>HX_PROD</b><br/>
         物料花絮里能看到工作人员的麦克风线——接口处也缠着一圈银色交叉胶带，和上面那张旧照片里的记号是同一种打法。
-        <span class="profile-link" id="confirm-link">‹ 确认这是同一个人</span>
       </div>
     `;
 
     el.innerHTML = html;
 
-    el.querySelector("#confirm-link")?.addEventListener("click", () => {
-      const card = el.querySelector(".credits-card");
-      card.querySelector(".profile-link").remove();
-      const confirmMsg = document.createElement("div");
-      confirmMsg.className = "sysmsg";
-      confirmMsg.style.marginTop = "8px";
-      confirmMsg.textContent = "你确认了一个被删除账号的真实身份：HX_404 = 贺寻 = HX_PROD。";
-      card.appendChild(confirmMsg);
-      sessionStorage.setItem("echo-identity-confirmed", "1");
-      renderReturnSlot(document.getElementById("return-slot"));
-    });
+    // 翻到这两张照片放在一起，同一种胶带记号已经摆在眼前——不用再点一个
+    // "确认"按钮把结论替玩家说出来，看完这页本身就算拿到这条线索了。
+    sessionStorage.setItem("echo-identity-confirmed", "1");
+    renderReturnSlot(document.getElementById("return-slot"));
   }
 
   function renderReturnSlot(el) {

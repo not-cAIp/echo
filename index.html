@@ -138,7 +138,11 @@
   const PASSWORD = "anzai0719";
   const RECOVERY_ANSWERS = ["5", "五", "five", "5个", "五个", "5人", "五人"];
 
-  const norm = (s) => s.trim().toLowerCase().replace(/[\s@._-]/g, "");
+  // 有些输入法手动打字时会把字母数字打成全角，肉眼几乎看不出来，但和
+  // 半角字符串直接比较会判定不相等——粘贴进来的内容不受输入法影响所以
+  // 能通过，手打却总是提示"不正确"。先转回半角再做其余归一化。
+  const toHalfWidth = (s) => s.replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/　/g, " ");
+  const norm = (s) => toHalfWidth(s).trim().toLowerCase().replace(/[\s@._-]/g, "");
 
   const loginWrap = document.getElementById("login-wrap");
   const verifyWrap = document.getElementById("verify-wrap");
@@ -148,9 +152,9 @@
   document.getElementById("li-pass").addEventListener("keydown", (e) => { if (e.key === "Enter") tryLogin(); });
   function tryLogin() {
     const u = norm(document.getElementById("li-user").value);
-    const p = document.getElementById("li-pass").value.trim();
+    const p = norm(document.getElementById("li-pass").value);
     const msg = document.getElementById("li-msg");
-    if (u === norm(USERNAME) && p === PASSWORD) {
+    if (u === norm(USERNAME) && p === norm(PASSWORD)) {
       loginWrap.hidden = true;
       verifyWrap.hidden = false;
       return;

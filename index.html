@@ -71,6 +71,8 @@
   .msg .avatar{width:30px;height:30px;border-radius:8px;flex:none;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-faint);border:1px solid var(--line);}
   .msg .bubble{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;line-height:1.65;}
   .msg .who{font-size:11px;color:var(--accent);margin-bottom:3px;font-weight:600;}
+  .msg .who[data-account-link]:hover{text-decoration:underline;}
+  .msg .avatar[data-account-link]:hover{border-color:var(--accent);}
   .msg.hx .who{color:#d0a862;}
   .msg.deactivated .bubble{opacity:.55;}
   .msg.deactivated .who{color:var(--ink-faint);}
@@ -261,6 +263,8 @@
     },
   };
 
+  const ACCOUNT_LINK_BY_NAME = { "HX_404": "hx404", "新_PROD": "newprod" };
+
   function openAccountPage(id) {
     activeAccountPage = id;
     renderTabPane();
@@ -326,15 +330,30 @@
   }
   function msg(who, text, cls) {
     const initial = who.slice(0, 1);
+    const accountId = ACCOUNT_LINK_BY_NAME[who];
+    const linkAttr = accountId ? ` data-account-link="${accountId}"` : "";
     return `
       <div class="msg ${cls || ""}">
-        <div class="avatar">${initial}</div>
+        <div class="avatar"${linkAttr}>${initial}</div>
         <div>
-          <div class="who">${who}</div>
+          <div class="who"${linkAttr}>${who}</div>
           <div class="bubble">${text}</div>
         </div>
       </div>
     `;
+  }
+
+  // HX_404/新_PROD 头像和用户名统一走这个绑定——群消息里出现的每一次
+  // 都可以点进去，麦克风照片只在各自的主页里能看到，不再直接挂在
+  // 消息下面，跟其他账号资料的浏览方式一致。
+  function bindAccountLinks(el) {
+    el.querySelectorAll("[data-account-link]").forEach((node) => {
+      node.style.cursor = "pointer";
+      node.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openAccountPage(node.dataset.accountLink);
+      });
+    });
   }
 
   function renderChatLog(el) {
@@ -384,8 +403,7 @@
       <div class="profile-card profile-link-card" id="hx404-link">
         <div class="ptitle">HX_404 的资料（已注销）</div>
         <div class="ptag">项目编号 H-X-04 ｜ 姓名：贺寻 ｜ 生日：06-11</div>
-        置顶相册里有一张没删掉的照片，配文是『自己做的记号，不然天天跟别人拿混』：
-        ${tapeCableSvg("hx404-photo")}
+        置顶相册里有一张没删掉的照片，配文是『自己做的记号，不然天天跟别人拿混』——点头像或用户名进主页看。
         <div class="staff-more-link">查看 HX_404 主页 ›</div>
       </div>
     `;
@@ -393,18 +411,16 @@
     html += `
       <div class="credits-card">
         <div class="ctitle">最近一次刷到的周年物料署名</div>
-        『晏星的七年留言』周年企划 · 素材执行：<b>新_PROD</b><br/>
-        物料花絮截图，能看到工作人员的麦克风线：
-        ${tapeCableSvg("newprod-photo")}
+        『晏星的七年留言』周年企划 · 素材执行：<b class="profile-link-card" id="newprod-credit-link" style="cursor:pointer;">新_PROD</b><br/>
+        物料花絮截图里能看到工作人员的麦克风线，点上面的账号名去主页看。
       </div>
     `;
 
     el.innerHTML = html;
 
-    el.querySelectorAll(".photo-frame").forEach((f) => {
-      f.addEventListener("click", (e) => { e.stopPropagation(); f.classList.toggle("zoomed"); });
-    });
+    bindAccountLinks(el);
     document.getElementById("hx404-link").addEventListener("click", () => openAccountPage("hx404"));
+    document.getElementById("newprod-credit-link").addEventListener("click", () => openAccountPage("newprod"));
   }
 
   // 同一种"接口处缠银色交叉胶带"的记号，用同一段 SVG 画两次——玩家自己
@@ -470,6 +486,7 @@
     html += msg("麦头哥", "咸不咸的，明天照常八点集合。");
     html += `<div class="staff-more-link" id="newprod-link">查看新_PROD主页 ›</div>`;
     pane.innerHTML = `<div class="group-head"><div class="gname">员工群（6）</div></div><div class="chat-log">${html}</div>`;
+    bindAccountLinks(pane);
     document.getElementById("newprod-link").addEventListener("click", () => openAccountPage("newprod"));
   }
 

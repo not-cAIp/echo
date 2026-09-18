@@ -107,6 +107,11 @@
   .account-tag{font-size:11px;color:var(--ink-faint);margin-top:2px;}
   .account-bio{font-size:13px;color:var(--ink-soft);margin:10px 0 14px;padding:10px 12px;background:var(--surface-2);border-radius:8px;}
   .account-pinned-label{font-size:11px;color:var(--ink-faint);font-weight:600;letter-spacing:.03em;margin-bottom:6px;}
+  .review-table{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:4px 12px;margin-bottom:14px;}
+  .review-row{display:flex;justify-content:space-between;padding:7px 0;font-size:12.5px;border-bottom:1px dashed var(--line);}
+  .review-row:last-child{border-bottom:none;}
+  .review-row span:first-child{color:var(--ink-soft);}
+  .review-row span:last-child{color:var(--ink);font-weight:600;}
 
   .gate-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 16px;}
   .gate-card p.hint{font-size:11.5px;color:var(--ink-faint);line-height:1.7;margin:0 0 14px;}
@@ -252,6 +257,22 @@
       bio: "梦想是出道",
       pinnedImage: "images/mic-hx404.png",
       pinnedCaption: "自己做的记号，不然天天跟别人拿混",
+      // 这份旧月评是专门用来推翻"贺寻是不是实力不够才没出道"这个第一
+      // 直觉的——综合排名 2/11，镜头表现是唯一明显偏弱的一项，跟后面
+      // GW 商业测试文件里"首轮关注转化最低"是两个不同维度的评价，不
+      // 冲突：一个是专业老师打分，一个是市场测试数据。
+      monthlyReview: {
+        period: "2018 Q4 · 内部月评存档",
+        rows: [
+          ["舞蹈", "A-"],
+          ["声乐", "B"],
+          ["舞台稳定", "A"],
+          ["团队协作", "A"],
+          ["镜头表现", "C+"],
+          ["综合排名", "2 / 11"],
+        ],
+        clue: "c55",
+      },
     },
     newprod: {
       name: "新_PROD",
@@ -305,6 +326,12 @@
             <img src="${data.pinnedImage}" alt="${data.pinnedCaption}" />
           </div>
           <div class="photo-cap">${data.pinnedCaption}</div>
+        ` : ""}
+        ${data.monthlyReview ? `
+          <div class="account-pinned-label">${data.monthlyReview.period}</div>
+          <div class="review-table">
+            ${data.monthlyReview.rows.map(([k, v]) => `<div class="review-row"><span>${k}</span><span class="mono">${v}</span></div>`).join("")}
+          </div>
         ` : ""}
         ${data.sigHistory ? `
           <div class="gtoggle" id="sig-toggle">‹ 查看个性签名历史</div>
@@ -396,6 +423,16 @@
 
     html += sys("群名由「出道预备A组（5）」改为「NOV5（5）」");
 
+    html += sys("2019-03-07");
+    html += msg("江彻", "今天又量尺寸？？");
+    html += msg("林安", "我上周不是量过了吗");
+    html += msg("HX_404", "舞台服，跟上次拍照那套不一样", "hx");
+    html += msg("许嘉树", "所以这次是真的要定了？");
+    html += msg("周晏星", "你第几次说『真的要定了』了");
+    html += msg("HX_404", "至少这次五个人都量了", "hx");
+    html += msg("林安", "截图了，以后谁没出道我拿出来嘲笑谁");
+    html += msg("HX_404", "那你最好永远别发出来", "hx");
+
     html += msg("HX_404", "谁拿了我牛奶？");
     html += msg("林安", "晏星。");
     html += msg("周晏星", "林安你是不是想死。");
@@ -440,6 +477,24 @@
     html += msg("HX_404", "谁先红谁先完蛋", "hx");
     html += msg("江彻", "那第一个红的负责请客封口");
 
+    html += msg("林安", "发烧了，请假一天");
+    html += msg("HX_404", "走位视频发你了，落下的那段我标出来了", "hx");
+    html += msg("林安", "谢谢贺老师");
+    html += msg("HX_404", "叫哥", "hx");
+
+    html += msg("周晏星", "副歌那段动作我又忘了");
+    html += msg("HX_404", "留下，我陪你走一遍", "hx");
+    html += msg("周晏星", "现在？");
+    html += msg("HX_404", "不然呢", "hx");
+    html += msg("周晏星", "谢了");
+    html += msg("HX_404", "别谢，下次换你欠我一顿饭", "hx");
+
+    html += msg("许嘉树", "感觉贺寻以后适合当队长");
+    html += msg("HX_404", "别害我", "hx");
+    html += msg("江彻", "是真的，谁走位忘了都问你");
+    html += msg("HX_404", "问我是因为我记性好，不是因为我想管你们", "hx");
+    html += msg("林安", "嘴硬");
+
     html += sys("群名由「NOV5（5）」改为「项目确认群（5）」");
 
     html += msg("HX_404", "为什么我明天的声乐课被取消了？", "hx");
@@ -461,6 +516,15 @@
     html += msg("HX_404", "所以他们说你最稳定？", "hx");
     html += msg("周晏星", "至少报告上是这么写的。");
     html += msg("HX_404", "私人关系到底怎么算风险？", "hx");
+
+    html += sys("2019-05-21");
+    html += msg("HX_404", "刚刚有人又问我之前那个事", "hx");
+    html += msg("林安", "哪个");
+    html += msg("HX_404", "没事，推了", "hx");
+    html += msg("林安", "为什么");
+    html += msg("HX_404", "现在走才是有病吧", "hx");
+    html += msg("周晏星", "确实");
+    html += msg("HX_404", "都到这一步了", "hx");
 
     html += msg("HX_404", "声明上写的是我主动退出。", "hx");
     html += msg("HX_404", "谁同意的？", "hx");

@@ -175,12 +175,6 @@
   // 塑造，不再是解密码要拼的一部分。
   const PASSWORD = "0719";
   const RECOVERY_ANSWERS = ["5", "五", "five", "5个", "五个", "5人", "五人"];
-  // 林安对接群单独一道密码——不再是"原名_生日"这种能被套公式的格式，
-  // 换成必须先解出林安那两条凯撒密文（主站林安超话 l25/l26，铺垫在
-  // p026 星闻娱乐专访里）才能拿到的一个词。这样想直接拿到 F06/F07 那两
-  // 份关于贺寻的旧记录（现在挂在这个群里，见下面聊天记录），就绕不开
-  // 林安这条线——不再是"贺寻的线可以完全跳过林安单独推完"。
-  const STAFF_GROUP_PASSWORD = ["walkaway", "hecanjustwalkaway"];
 
   // 有些输入法手动打字时会把字母数字打成全角，肉眼几乎看不出来，但和
   // 半角字符串直接比较会判定不相等——粘贴进来的内容不受输入法影响所以
@@ -533,38 +527,16 @@
     bindAccountLinks(el);
   }
 
+  // 这个群不再锁密码——纯排期对接的日常对话，跟贺寻 09-12 深夜挖到的
+  // 旧记录没有关系。那两份文件（邀约邮件、决策日志）都不在这里了，全部
+  // 挪去了主站日记精灵（`teboluoWidget.js`，新_PROD微博主页）：邀约邮件
+  // 打"邮件"/"文件"触发，决策日志要先解出林安那两段凯撒密文，把解出来的
+  // 那句话（如 walkaway）打给机器人才会翻出来——密码变成聊天彩蛋，不再
+  // 是站点本身的登录门槛。
   function renderStaffTab(pane) {
-    if (sessionStorage.getItem("echo-staff-unlocked") === "1") {
-      renderStaffChat(pane);
-      return;
-    }
-    pane.innerHTML = `
-      <div class="gate-card">
-        <p class="hint">林安对接群 · 需要单独的访问口令才能查看。</p>
-        <input id="staff-pass-input" type="text" placeholder="输入口令" autocomplete="off" />
-        <button id="staff-pass-btn">进入</button>
-        <div id="staff-pass-err"></div>
-      </div>
-    `;
-    function submit() {
-      const val = norm(document.getElementById("staff-pass-input").value);
-      if (STAFF_GROUP_PASSWORD.map(norm).includes(val)) {
-        sessionStorage.setItem("echo-staff-unlocked", "1");
-        renderStaffChat(pane);
-        return;
-      }
-      document.getElementById("staff-pass-err").innerHTML = `<div class="gate-err">口令不正确。</div>`;
-    }
-    document.getElementById("staff-pass-btn").addEventListener("click", submit);
-    document.getElementById("staff-pass-input").addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+    renderStaffChat(pane);
   }
 
-  // 这个群本来就是纯排期对接群，跟贺寻 09-12 深夜挖到的旧记录原本毫无
-  // 关系——决策日志会出现在这里，纯粹是因为新_PROD 那晚翻完旧档案之后
-  // 情绪还没缓过来，随手转发的时候点错了窗口。陈屿等人的反应也不过是
-  // "手滑了、没事"，没有人意识到这份文件意味着什么。那封邀约邮件这一版
-  // 改放回日记精灵（`teboluoWidget.js`，主站新_PROD微博主页），靠单独
-  // 一个"邮件/文件"触发词翻出来，不在这里重复。
   function renderStaffChat(pane) {
     let html = "";
     html += sys("林安对接群（4）");
@@ -572,12 +544,8 @@
     html += msg("麦头哥", "收到，几点到场？");
     html += msg("陈屿", "一点半前吧，留点余量。");
     html += msg("林安助理", "他今天状态不太好，流程尽量别拖太久。");
-    html += msg("新_PROD", "抱歉，发错群了——\n\n2019-05-18｜五人/四人方案复盘创建\n2019-05-20｜四人方案原则通过\n2019-05-20｜H-X-04：优先调整\n2019-05-21｜H-X-04：婉拒外部邀约（另一家公司艺人发展部）", "hx");
-    html += msg("林安助理", "……这是什么，你是不是发错哪个群了");
-    html += msg("新_PROD", "没事，忽略就好，手滑。", "hx");
-    html += msg("陈屿", "你还好吗");
-    html += msg("新_PROD", "还好。", "hx");
-    html += msg("陈屿", "都会有手滑的时候，没事。");
+    html += msg("新_PROD", "设备我提前检查过了，没问题。", "hx");
+    html += msg("麦头哥", "辛苦。");
     html += msg("林安助理", "……那场地那边确认了吗");
     html += msg("陈屿", "确认了，不用担心。");
     html += msg("麦头哥", "一点半到，先这样。");

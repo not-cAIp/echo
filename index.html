@@ -175,6 +175,11 @@
   // 塑造，不再是解密码要拼的一部分。
   const PASSWORD = "0719";
   const RECOVERY_ANSWERS = ["5", "五", "five", "5个", "五个", "5人", "五人"];
+  // 林安对接群单独一道密码——原名/英文名 anson（ECHO 自己的用户名
+  // quietanson0716 已经点出这个名字）+ 生日 0304（主站 p026 星闻娱乐
+  // 专访里拼，专访原文直接给了"三月四号"）。密码的格式提示（原名_生日）
+  // 在主站陈屿的备忘录（cy_notes）cm07 那条帖子里。
+  const STAFF_GROUP_PASSWORD = ["anson0304", "anson_0304"];
 
   // 有些输入法手动打字时会把字母数字打成全角，肉眼几乎看不出来，但和
   // 半角字符串直接比较会判定不相等——粘贴进来的内容不受输入法影响所以
@@ -527,14 +532,36 @@
     bindAccountLinks(el);
   }
 
-  // 这个群不再锁密码——纯排期对接的日常对话，跟贺寻 09-12 深夜挖到的
-  // 旧记录没有关系。那两份文件（邀约邮件、决策日志）都不在这里了，全部
-  // 挪去了主站日记精灵（`teboluoWidget.js`，新_PROD微博主页）：邀约邮件
-  // 打"邮件"/"文件"触发，决策日志要先解出林安那两段凯撒密文，把解出来的
-  // 那句话（如 walkaway）打给机器人才会翻出来——密码变成聊天彩蛋，不再
-  // 是站点本身的登录门槛。
+  // 群本身还锁着 anson0304，进去之后是纯排期对接的日常对话，跟贺寻
+  // 09-12 深夜挖到的旧记录没有关系——那两份文件（邀约邮件、决策日志）
+  // 都不在这里了，全部挪去了主站日记精灵（`teboluoWidget.js`，新_PROD
+  // 微博主页）：邀约邮件打"邮件"/"文件"触发，决策日志要先解出林安那两段
+  // 凯撒密文，把解出来的那句话（如 walkaway）打给机器人才会翻出来——
+  // 两把锁各管各的，互不依赖。
   function renderStaffTab(pane) {
-    renderStaffChat(pane);
+    if (sessionStorage.getItem("echo-staff-unlocked") === "1") {
+      renderStaffChat(pane);
+      return;
+    }
+    pane.innerHTML = `
+      <div class="gate-card">
+        <p class="hint">林安对接群 · 需要单独的访问口令才能查看。</p>
+        <input id="staff-pass-input" type="text" placeholder="输入口令" autocomplete="off" />
+        <button id="staff-pass-btn">进入</button>
+        <div id="staff-pass-err"></div>
+      </div>
+    `;
+    function submit() {
+      const val = norm(document.getElementById("staff-pass-input").value);
+      if (STAFF_GROUP_PASSWORD.map(norm).includes(val)) {
+        sessionStorage.setItem("echo-staff-unlocked", "1");
+        renderStaffChat(pane);
+        return;
+      }
+      document.getElementById("staff-pass-err").innerHTML = `<div class="gate-err">口令不正确。</div>`;
+    }
+    document.getElementById("staff-pass-btn").addEventListener("click", submit);
+    document.getElementById("staff-pass-input").addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
   }
 
   function renderStaffChat(pane) {

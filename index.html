@@ -281,26 +281,9 @@
       pinnedImage: "images/mic-newprod.png",
       pinnedCaption: "工作人员用麦克风，别乱拿",
     },
-    // 林安这个账号从出道前就没怎么改过资料，长期挂着没动静——个性签名
-    // 历史前几条都是练习生时期的碎碎念，最后两条却是案发前后两天，风格
-    // 完全变了：看着像乱码，其实是林安自己从小就玩的凯撒位移（+3），
-    // 佐证见他本人那篇采访里『小时候特迷挪三位加密』的花絮（posts.json
-    // 里的 p026）。会不会解不重要，重要的是这两条签名什么时候被谁发出来的。
-    linan: {
-      name: "林安",
-      tag: "F4ever成员 · 生日 03-04",
-      bio: "",
-      sigHistory: [
-        { time: "2018-09-02", text: "今天也要加油🌟" },
-        { time: "2019-05-30", text: "别催我，我在长大" },
-        { time: "2019-12-24", text: "祝我们都能一直被喜欢" },
-        { time: "2026-09-11", text: "L ORVH HYHUBWKLQJ", note: "系统标记：来自旧版客户端 · 自动同步失败，延迟显示" },
-        { time: "2026-09-13 22:18", text: "KH FDQ MXVW ZDON DZDB", note: "系统标记：来自旧版客户端 · 自动同步失败，延迟显示" },
-      ],
-    },
   };
 
-  const ACCOUNT_LINK_BY_NAME = { "HX_404": "hx404", "新_PROD": "newprod", "林安": "linan" };
+  const ACCOUNT_LINK_BY_NAME = { "HX_404": "hx404", "新_PROD": "newprod" };
 
   function openAccountPage(id) {
     activeAccountPage = id;

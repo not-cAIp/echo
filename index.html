@@ -175,11 +175,6 @@
   // 塑造，不再是解密码要拼的一部分。
   const PASSWORD = "0719";
   const RECOVERY_ANSWERS = ["5", "五", "five", "5个", "五个", "5人", "五人"];
-  // 林安对接群单独一道密码——原名/英文名 anson（ECHO 自己的用户名
-  // quietanson0716 已经点出这个名字）+ 生日 0304（主站 p026 星闻娱乐
-  // 专访里拼，专访原文直接给了"三月四号"）。密码的格式提示（原名_生日）
-  // 在主站陈屿的备忘录（cy_notes）cm07 那条帖子里。
-  const STAFF_GROUP_PASSWORD = ["anson0304", "anson_0304"];
 
   // 有些输入法手动打字时会把字母数字打成全角，肉眼几乎看不出来，但和
   // 半角字符串直接比较会判定不相等——粘贴进来的内容不受输入法影响所以
@@ -227,17 +222,15 @@
     { name: "F4ever成员群（4）", note: "最后一次改名，成员数从 5 变成了 4。第五个人的账号从这之后就一直显示『已注销』。" },
   ];
 
+  // ECHO 是练习生/早期团体时期用的旧平台，只承载过去的信息——现代的
+  // 排期对接、商务沟通这些不该出现在这里，之前挂过的"林安对接群"
+  // （现代通告排期聊天）已经整个搬去主站的 Galaxy Link 截图，这里
+  // 只留 F4ever 成员群这一份练习生时期的真实聊天记录，不再需要标签页。
   let activeAppTab = "f4ever";
 
   function renderApp() {
     const app = document.getElementById("app");
-    app.innerHTML = `
-      <div class="app-tabs">
-        <button data-tab="f4ever">F4ever成员群</button>
-        <button data-tab="staff">林安对接群</button>
-      </div>
-      <div id="tab-pane"></div>
-    `;
+    app.innerHTML = `<div id="tab-pane"></div>`;
     app.querySelectorAll(".app-tabs button").forEach((btn) => {
       btn.addEventListener("click", () => {
         activeAppTab = btn.dataset.tab;
@@ -365,8 +358,6 @@
         el.innerHTML = `<div class="gname-history">${GROUP_NAMES.map((g) => `<div><b>${g.name}</b> — ${g.note}</div>`).join("")}</div>`;
       });
       renderChatLog(document.getElementById("chat-log"));
-    } else if (activeAppTab === "staff") {
-      renderStaffTab(pane);
     }
   }
 
@@ -538,48 +529,6 @@
   // 微博主页）：邀约邮件打"邮件"/"文件"触发，决策日志要先解出林安那两段
   // 凯撒密文，把解出来的那句话（如 walkaway）打给机器人才会翻出来——
   // 两把锁各管各的，互不依赖。
-  function renderStaffTab(pane) {
-    if (sessionStorage.getItem("echo-staff-unlocked") === "1") {
-      renderStaffChat(pane);
-      return;
-    }
-    pane.innerHTML = `
-      <div class="gate-card">
-        <p class="hint">林安对接群 · 需要单独的访问口令才能查看。</p>
-        <input id="staff-pass-input" type="text" placeholder="输入口令" autocomplete="off" />
-        <button id="staff-pass-btn">进入</button>
-        <div id="staff-pass-err"></div>
-      </div>
-    `;
-    function submit() {
-      const val = norm(document.getElementById("staff-pass-input").value);
-      if (STAFF_GROUP_PASSWORD.map(norm).includes(val)) {
-        sessionStorage.setItem("echo-staff-unlocked", "1");
-        renderStaffChat(pane);
-        return;
-      }
-      document.getElementById("staff-pass-err").innerHTML = `<div class="gate-err">口令不正确。</div>`;
-    }
-    document.getElementById("staff-pass-btn").addEventListener("click", submit);
-    document.getElementById("staff-pass-input").addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
-  }
-
-  function renderStaffChat(pane) {
-    let html = "";
-    html += sys("林安对接群（4）");
-    html += msg("陈屿", "明天林安的通告改到下午两点，麦头哥设备提前送过去。");
-    html += msg("麦头哥", "收到，几点到场？");
-    html += msg("陈屿", "一点半前吧，留点余量。");
-    html += msg("林安助理", "他今天状态不太好，流程尽量别拖太久。");
-    html += msg("新_PROD", "设备我提前检查过了，没问题。", "hx");
-    html += msg("麦头哥", "辛苦。");
-    html += msg("林安助理", "……那场地那边确认了吗");
-    html += msg("陈屿", "确认了，不用担心。");
-    html += msg("麦头哥", "一点半到，先这样。");
-    pane.innerHTML = `<div class="group-head"><div class="gname">林安对接群（4）</div></div><div class="chat-log">${html}</div>`;
-    bindAccountLinks(pane);
-  }
-
   if (sessionStorage.getItem("echo-logged-in") === "1") {
     loginWrap.hidden = true;
     verifyWrap.hidden = true;

@@ -21,6 +21,31 @@
   .mono{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;}
   [hidden]{display:none!important;}
 
+  /* ---------- 停服页 ---------- */
+  .disc-wrap{
+    max-width:420px;margin:12vh auto 0;padding:0 16px;font-family:Arial,"Noto Sans SC",sans-serif;
+  }
+  .disc-box{background:#e8ebed;border:1px solid #b7bec2;color:#3c4446;padding:22px 24px;}
+  .disc-top{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #b7bec2;}
+  .disc-brokenimg{
+    width:22px;height:22px;border:1px solid #9aa3a6;flex:none;background:#dfe3e5;
+    display:flex;align-items:center;justify-content:center;font-size:9px;color:#8b9497;
+  }
+  .disc-word{font-size:14px;font-weight:700;letter-spacing:.03em;color:#4a5658;}
+  .disc-status{
+    display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:#8a4a3d;
+    background:#f0ded9;border:1px solid #cba99c;padding:2px 8px;margin-bottom:14px;
+  }
+  .disc-body{font-size:12px;line-height:2;color:#4a5658;}
+  .disc-body p{margin:0 0 10px;}
+  .disc-en{font-size:10.5px;color:#8b9497;line-height:1.8;margin-top:14px;padding-top:12px;border-top:1px dashed #b7bec2;}
+  .disc-stamp{font-size:10px;color:#9aa3a6;margin-top:16px;font-family:"JetBrains Mono",monospace;}
+  .disc-enter{
+    margin-top:18px;background:#5c6a6d;color:#eef1f2;border:1px solid #4a5658;
+    padding:8px 16px;font-size:11.5px;cursor:pointer;font-family:inherit;
+  }
+  .disc-enter:hover{background:#4a5658;}
+
   /* ---------- 登录 ---------- */
   .login-wrap{max-width:340px;margin:8vh auto 0;padding:0 16px;}
   .login-logo{display:flex;align-items:center;gap:9px;justify-content:center;margin-bottom:22px;}
@@ -120,14 +145,37 @@
     padding:11px;font-size:13px;font-weight:700;cursor:pointer;
   }
   .gate-err{font-size:11.5px;color:var(--warn);margin-top:8px;}
+
+  .archive-badge{
+    display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.08em;color:var(--ink-faint);
+    border:1px solid var(--line);padding:1px 6px;margin-left:6px;border-radius:3px;vertical-align:middle;
+  }
 </style>
 </head>
 <body>
 
-<div class="login-wrap" id="login-wrap">
+<div class="disc-wrap" id="disc-wrap">
+  <div class="disc-box">
+    <div class="disc-top">
+      <div class="disc-brokenimg" title="logo.gif">×</div>
+      <div class="disc-word">ECHO</div>
+    </div>
+    <div class="disc-status">SERVICE DISCONTINUED</div>
+    <div class="disc-body">
+      <p>ECHO即时通讯服务已停止运行。</p>
+      <p>历史账户及消息数据已完成归档。</p>
+      <p>银河星途目前已使用 NEXUS Workspace 作为内部通讯与项目协作平台。</p>
+    </div>
+    <div class="disc-en">Existing employee identities and historical message records were migrated during the system transition.</div>
+    <div class="disc-stamp">Last updated: 2022</div>
+    <button class="disc-enter" id="disc-enter-btn">进入历史归档 »</button>
+  </div>
+</div>
+
+<div class="login-wrap" id="login-wrap" hidden>
   <div class="login-logo"><div class="mark">E</div><div class="word">ECHO</div></div>
   <div class="login-card" id="login-card">
-    <h2>登录</h2>
+    <h2>登录 <span class="archive-badge">ARCHIVED</span></h2>
     <p class="hint">检测到这是一个很久没有登录过的账号，来自新设备。请输入账号信息继续。</p>
     <label>账号</label>
     <input id="li-user" type="text" placeholder="用户名" autocomplete="off" />
@@ -136,7 +184,7 @@
     <button id="li-btn">登录</button>
     <div id="li-msg"></div>
   </div>
-  <div class="login-note">ECHO 早年是练习生和小团体之间很流行的一个通讯软件，后来慢慢没什么人用了，服务器倒是一直没关。</div>
+  <div class="login-note">服务本身已经停运，这里能进的只是历史账户与消息的只读归档，不能再发送新消息。</div>
 </div>
 
 <div class="login-wrap" id="verify-wrap" hidden>
@@ -156,7 +204,8 @@
   <header class="app-top">
     <div class="mark">E</div>
     <div class="word">ECHO</div>
-    <div class="sub">旧版 · 群聊存档</div>
+    <div class="sub">Legacy Archive</div>
+    <span class="archive-badge">READ ONLY</span>
   </header>
   <div id="app"></div>
 </div>
@@ -181,9 +230,15 @@
   const toHalfWidth = (s) => s.replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/　/g, " ");
   const norm = (s) => toHalfWidth(s).trim().toLowerCase().replace(/[\s@._-]/g, "");
 
+  const discWrap = document.getElementById("disc-wrap");
   const loginWrap = document.getElementById("login-wrap");
   const verifyWrap = document.getElementById("verify-wrap");
   const mainWrap = document.getElementById("main-wrap");
+
+  document.getElementById("disc-enter-btn").addEventListener("click", () => {
+    discWrap.hidden = true;
+    loginWrap.hidden = false;
+  });
 
   document.getElementById("li-btn").addEventListener("click", tryLogin);
   document.getElementById("li-pass").addEventListener("keydown", (e) => { if (e.key === "Enter") tryLogin(); });
@@ -308,7 +363,7 @@
     if (activeAppTab === "f4ever") {
       pane.innerHTML = `
         <div class="group-head">
-          <div class="gname">F4ever成员群（4）</div>
+          <div class="gname">F4ever成员群（4）<span class="archive-badge">ARCHIVED</span></div>
           <div class="gmeta">群成员：4 · 另有 1 个账号状态异常</div>
           <div class="gtoggle" id="gname-toggle">‹ 查看群名变更记录</div>
           <div id="gname-history" hidden></div>
@@ -495,6 +550,7 @@
   }
 
   if (sessionStorage.getItem("echo-logged-in") === "1") {
+    discWrap.hidden = true;
     loginWrap.hidden = true;
     verifyWrap.hidden = true;
     mainWrap.hidden = false;
